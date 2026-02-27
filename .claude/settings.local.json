@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(npm install)",
+      "Bash(php:*)",
+      "Bash(mysql:*)",
+      "Bash(npm run dev:*)",
+      "Read(//c/laragon/www/**)",
+      "Bash(\"C:\\laragon\\bin\\mysql\\mysql-8.0.30-winx64\\bin\\mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS task_manager;\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,163 @@
+=======================================
+Task Management Application - User Guide
+=======================================
+
+
+1. INTRODUCTION
+
+Welcome to your new Task Management Application! This is a full-featured, web-based tool designed to help you organize, track, and collaborate on tasks within different projects. It features a Kanban-style board, a project dashboard, a calendar view, and real-time updates to ensure seamless collaboration.
+
+This document provides all the information you need to set up, run, and use the application.
+
+
+2. GETTING STARTED
+
+--- Prerequisites ---
+
+Before you begin, ensure you have the following software installed on your system:
+
+- A PHP & MySQL Environment: A local server stack like Laragon, XAMPP, WAMP, or MAMP.
+- Node.js and npm: Required to run the frontend application. You can download it from nodejs.org.
+- Composer: The PHP package manager. You can download it from getcomposer.org.
+
+
+--- Installation ---
+
+1. Database Setup:
+   - Using your database management tool (like phpMyAdmin, which comes with Laragon), create a new, empty database named `task_manager`.
+
+2. Create Database Schema:
+   - In the `task_manager` database, execute the following complete SQL script. This will create all the necessary tables and indexes.
+
+   CREATE TABLE `users` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `username` varchar(255) NOT NULL,
+     `email` varchar(255) NOT NULL,
+     `password` varchar(255) NOT NULL,
+     `role` varchar(50) NOT NULL DEFAULT 'user',
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `username` (`username`),
+     UNIQUE KEY `email` (`email`)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+   CREATE TABLE `projects` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `name` varchar(255) NOT NULL,
+     `description` text,
+     `user_id` int(11) NOT NULL,
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+   CREATE TABLE `tasks` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `title` varchar(255) NOT NULL,
+     `description` text,
+     `project_id` int(11) NOT NULL,
+     `assignee_id` INT(11) DEFAULT NULL,
+     `status` varchar(50) NOT NULL DEFAULT 'To Do',
+     `priority` varchar(50) DEFAULT 'Medium',
+     `due_date` date DEFAULT NULL,
+     `tags` VARCHAR(255) DEFAULT NULL,
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     FOREIGN KEY (`project_id`) REFERENCES `projects`(`id`) ON DELETE CASCADE,
+     FOREIGN KEY (`assignee_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+   CREATE TABLE `comments` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `content` text NOT NULL,
+     `task_id` int(11) NOT NULL,
+     `user_id` int(11) NOT NULL,
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     FOREIGN KEY (`task_id`) REFERENCES `tasks`(`id`) ON DELETE CASCADE,
+     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+   CREATE TABLE `notifications` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `project_id` int(11) NOT NULL,
+     `message` varchar(255) NOT NULL,
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+   ALTER TABLE `projects` ADD INDEX `user_id_index` (`user_id`);
+   ALTER TABLE `tasks` ADD INDEX `project_id_index` (`project_id`);
+   ALTER TABLE `tasks` ADD INDEX `assignee_id_index` (`assignee_id`);
+   ALTER TABLE `tasks` ADD INDEX `status_index` (`status`);
+   ALTER TABLE `comments` ADD INDEX `task_id_index` (`task_id`);
+   ALTER TABLE `comments` ADD INDEX `user_id_index` (`user_id`);
+
+3. Install Backend Dependencies:
+   - Open a terminal and navigate to the `backend` directory:
+     cd path/to/your/project/task-manager-app/backend
+   - Run Composer to install the required PHP libraries:
+     composer install
+
+4. Install Frontend Dependencies:
+   - Open another terminal and navigate to the `frontend` directory:
+     cd path/to/your/project/task-manager-app/frontend
+   - Run npm to install the required JavaScript libraries:
+     npm install
+
+
+--- Running the Application ---
+
+To run the application, you need to start two separate server processes.
+
+1. Start the WebSocket Server:
+   - In a terminal, navigate to the `backend` directory.
+   - Run the following command. This server handles real-time updates.
+     php socket-server.php
+   - Keep this terminal window open.
+
+2. Start the Frontend Server:
+   - In a separate terminal, navigate to the `frontend` directory.
+   - Run the following command to start the Vue.js development server:
+     npm run dev
+   - The terminal will give you a local URL to open in your browser (usually http://localhost:5173).
+
+
+3. APPLICATION FEATURES
+
+--- User Accounts ---
+
+- Register: Create a new account by providing a username, email, and password.
+- Login: Log in with your email and password. The application will keep you logged in until you explicitly log out.
+
+--- Dashboard ---
+
+After logging in, you are taken to the main dashboard, which provides a high-level overview of the application's data, including:
+- Total number of projects.
+- Total number of tasks.
+- Total number of users.
+- A pie chart visualizing the distribution of tasks by their current status.
+
+--- Projects ---
+
+- Navigate to the Projects page to see a list of all your projects.
+- Use the Create Project form on the right to add new projects by giving them a name and an optional description.
+
+--- Project Board ---
+
+- From the Projects page, click the View button on any project to open its Project Board.
+- The board displays tasks in three columns: To Do, In Progress, and Done.
+- Create Tasks: Use the form in the "To Do" column to create new tasks. You can set a title, description, priority, due date, tags (as a comma-separated list), and assign the task to a user.
+- Move Tasks: Simply drag and drop tasks from one column to another to update their status. This change will be visible to anyone else viewing the board in real-time.
+- Search and Filter: Use the controls at the top of the board to instantly search for tasks by title or filter them by priority and assignee.
+
+--- Task Details and Comments ---
+
+- Click on any task card to open a detailed view in a pop-up modal.
+- Here you can see all the task's details and view a list of comments.
+- Use the form at the bottom of the modal to add your own comments to the task.
+
+--- Calendar ---
+
+- Navigate to the Calendar page from the main navigation.
+- This provides a full-month calendar view that displays all of your tasks that have a set due date, giving you a clear overview of your upcoming deadlines.
