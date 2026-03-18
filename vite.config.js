@@ -14,6 +14,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'client', // <-- this fixes the Vercel error
+    outDir: '/', // <-- this fixes the Vercel error
   },
 })
